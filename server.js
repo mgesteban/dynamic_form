@@ -1,8 +1,10 @@
 // Add this near the top of your server.js file
-console.log('Server version: March 6, 2025 - New dates update');
+console.log('Server version: March 7, 2025 - Supabase integration');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+require('dotenv').config();
+const { supabase, checkConnection } = require('./db/supabase');
 const app = express();
 
 // Middleware
@@ -17,14 +19,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Global sessions data for serverless environment
-// In a production app, you'd use a database instead
-let sessionsData = [
-  { id: 1, day: 'Monday', date: 'March 10', time: '4:00 PM - 5:00 PM', attendees: [], maxAttendees: 10 },
-  { id: 2, day: 'Tuesday', date: 'March 11', time: '4:00 PM - 5:00 PM', attendees: [], maxAttendees: 10 },
-  { id: 3, day: 'Thursday', date: 'March 13', time: '2:00 PM - 3:00 PM', attendees: [], maxAttendees: 10 },
-  { id: 5, day: 'Thursday', date: 'March 13', time: '4:00 PM - 5:00 PM', attendees: [], maxAttendees: 10 },
-];
+// No more in-memory sessions data - we now use Supabase database
 
 // Routes
 // Serve the main page
@@ -32,20 +27,44 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Get all sessions - debug version with error handling
-app.get('/api/sessions', (req, res) => {
+// Get all sessions from Supabase
+app.get('/api/sessions', async (req, res) => {
   try {
-    // Add a console log for debugging (will show in Vercel logs)
-    console.log('Sessions requested, returning:', JSON.stringify(sessionsData).substring(0, 100) + '...');
-    res.json(sessionsData);
+    // Using the sessions_with_counts view to get attendee counts
+    const { data, error } = await supabase
+      .from('sessions_with_counts')
+      .select('*')
+      .order('id');
+    
+    if (error) {
+      console.error('Error fetching sessions:', error);
+      return res.status(500).json({ 
+        message: 'Failed to retrieve sessions', 
+        error: error.message 
+      });
+    }
+    
+    // Format the data to match the frontend expectations
+    const formattedSessions = data.map(session => ({
+      id: session.id,
+      day: session.day,
+      date: session.date,
+      time: session.time,
+      maxAttendees: session.max_attendees,
+      attendees: [], // We don't actually return the attendees list for privacy reasons
+      attendeeCount: session.attendee_count || 0
+    }));
+    
+    console.log(`Returning ${formattedSessions.length} sessions from Supabase`);
+    res.json(formattedSessions);
   } catch (error) {
     console.error('Error fetching sessions:', error);
     res.status(500).json({ message: 'Failed to retrieve sessions', error: error.message });
   }
 });
 
-// Sign up for a session
-app.post('/api/signup', (req, res) => {
+// Sign up for a session with Supabase
+app.post('/api/signup', async (req, res) => {
   try {
     const { name, email, sessionId } = req.body;
     console.log('Signup request received:', { name, email, sessionId });
@@ -61,28 +80,70 @@ app.post('/api/signup', (req, res) => {
       return res.status(400).json({ message: 'Please provide a valid email address' });
     }
     
-    // Find the selected session
-    const sessionIndex = sessionsData.findIndex(session => session.id === parseInt(sessionId));
+    // Convert sessionId to integer if it's a string
+    const sessionIdInt = parseInt(sessionId);
     
-    // Validate session exists
-    if (sessionIndex === -1) {
+    // First check if the session exists
+    const { data: session, error: sessionError } = await supabase
+      .from('sessions')
+      .select('*')
+      .eq('id', sessionIdInt)
+      .single();
+    
+    if (sessionError || !session) {
+      console.error('Error finding session:', sessionError);
       return res.status(404).json({ message: 'Session not found' });
     }
     
-    const session = sessionsData[sessionIndex];
+    // Check if the session is full
+    const { data: countData, error: countError } = await supabase
+      .from('attendees')
+      .select('count', { count: 'exact' })
+      .eq('session_id', sessionIdInt);
     
-    // Check if session is full
-    if (session.attendees.length >= session.maxAttendees) {
+    if (countError) {
+      console.error('Error checking session capacity:', countError);
+      return res.status(500).json({ message: 'Failed to check session capacity' });
+    }
+    
+    const currentAttendeeCount = countData.length;
+    if (currentAttendeeCount >= session.max_attendees) {
       return res.status(400).json({ message: 'This session is full. Please select another session.' });
     }
     
     // Check if user is already registered for this session
-    if (session.attendees.some(attendee => attendee.email === email)) {
+    const { data: existingAttendee, error: checkError } = await supabase
+      .from('attendees')
+      .select('*')
+      .eq('session_id', sessionIdInt)
+      .eq('email', email);
+    
+    if (checkError) {
+      console.error('Error checking existing registration:', checkError);
+      return res.status(500).json({ message: 'Failed to check registration status' });
+    }
+    
+    if (existingAttendee && existingAttendee.length > 0) {
       return res.status(400).json({ message: 'You are already registered for this session.' });
     }
     
-    // Add attendee to session
-    session.attendees.push({ name, email });
+    // Add the attendee to the database
+    const { error: insertError } = await supabase
+      .from('attendees')
+      .insert([
+        { session_id: sessionIdInt, name, email }
+      ]);
+    
+    if (insertError) {
+      console.error('Error registering attendee:', insertError);
+      
+      // Special handling for unique constraint violations
+      if (insertError.code === '23505') {
+        return res.status(400).json({ message: 'You are already registered for this session.' });
+      }
+      
+      return res.status(500).json({ message: 'Failed to register for session' });
+    }
     
     // Return success
     res.status(201).json({ 
@@ -94,12 +155,26 @@ app.post('/api/signup', (req, res) => {
   }
 });
 
-// For local development
+// Check database connection and initialize server
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  
+  // Verify Supabase connection before starting server
+  checkConnection()
+    .then(connected => {
+      if (connected) {
+        app.listen(PORT, () => {
+          console.log(`Server running on port ${PORT} with Supabase connection`);
+        });
+      } else {
+        console.error('Failed to connect to Supabase. Check your credentials.');
+        process.exit(1);
+      }
+    })
+    .catch(error => {
+      console.error('Error connecting to Supabase:', error);
+      process.exit(1);
+    });
 }
 
 // For Vercel - export the Express app
