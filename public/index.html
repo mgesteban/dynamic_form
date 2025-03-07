@@ -34,7 +34,8 @@
             font-weight: bold;
         }
         input[type="text"],
-        input[type="email"] {
+        input[type="email"],
+        select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -143,6 +144,21 @@
             </div>
             
             <div class="form-group">
+                <label for="department">Department</label>
+                <input type="text" id="department" name="department" placeholder="Enter your department" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="classification">Classification</label>
+                <select id="classification" name="classification" required>
+                    <option value="" disabled selected>Select your classification</option>
+                    <option value="Classified Professional">Classified Professional</option>
+                    <option value="Faculty">Faculty</option>
+                    <option value="Administrator">Administrator</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
                 <label>Select a Session</label>
                 <div id="sessionOptions"></div>
             </div>
@@ -211,7 +227,7 @@
             sessionOptions.innerHTML = '';
             
             sessions.forEach(session => {
-                const isFull = session.attendees.length >= session.maxAttendees;
+                const isFull = session.attendeeCount >= session.maxAttendees;
                 const sessionElement = document.createElement('div');
                 sessionElement.className = isFull ? 'session-option disabled' : 'session-option';
                 
@@ -243,7 +259,7 @@
                 
                 const attendeeCount = document.createElement('div');
                 attendeeCount.className = `attendee-count ${isFull ? 'full' : 'available'}`;
-                attendeeCount.textContent = `${session.attendees.length} / ${session.maxAttendees} attendees`;
+                attendeeCount.textContent = `${session.attendeeCount} / ${session.maxAttendees} attendees`;
                 
                 if (isFull) {
                     const fullBadge = document.createElement('span');
@@ -274,18 +290,20 @@
                 sessionTitle.textContent = `${session.day}, ${session.date} - ${session.time}`;
                 
                 const attendeeCount = document.createElement('p');
-                attendeeCount.textContent = `${session.attendees.length} / ${session.maxAttendees} attendees`;
+                attendeeCount.textContent = `${session.attendeeCount} / ${session.maxAttendees} attendees`;
                 
                 sessionElement.appendChild(sessionTitle);
                 sessionElement.appendChild(attendeeCount);
                 
-                if (session.attendees.length > 0) {
+                if (session.attendees && session.attendees.length > 0) {
                     const attendeeList = document.createElement('ul');
                     attendeeList.className = 'attendee-list';
                     
                     session.attendees.forEach(attendee => {
                         const attendeeItem = document.createElement('li');
-                        attendeeItem.textContent = `${attendee.name} (${attendee.email})`;
+                        const deptInfo = attendee.department ? ` - ${attendee.department}` : '';
+                        const classInfo = attendee.classification ? ` (${attendee.classification})` : '';
+                        attendeeItem.textContent = `${attendee.name} (${attendee.email})${deptInfo}${classInfo}`;
                         attendeeList.appendChild(attendeeItem);
                     });
                     
@@ -304,6 +322,8 @@
         function submitForm() {
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
+            const department = document.getElementById('department').value;
+            const classification = document.getElementById('classification').value;
             
             // Get selected session
             let sessionId = null;
@@ -313,12 +333,12 @@
             }
             
             // Validate form
-            if (!name || !email || !sessionId) {
+            if (!name || !email || !department || !classification || !sessionId) {
                 showError('Please fill out all fields');
                 return;
             }
             
-            console.log('Submitting form data:', { name, email, sessionId });
+            console.log('Submitting form data:', { name, email, department, classification, sessionId });
             
             // Use an absolute URL to ensure it works in all environments
             const apiUrl = window.location.origin + '/api/signup';
@@ -332,6 +352,8 @@
                 body: JSON.stringify({
                     name,
                     email,
+                    department,
+                    classification,
                     sessionId
                 }),
             })
