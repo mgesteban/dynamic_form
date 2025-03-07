@@ -41,14 +41,35 @@ module.exports = async (req, res) => {
         });
       }
       
+      // Get attendees for each session
+      const sessionsWithAttendees = await Promise.all(data.map(async (session) => {
+        const { data: attendees, error: attendeesError } = await supabase
+          .from('attendees')
+          .select('name, email, department, classification')
+          .eq('session_id', session.id);
+          
+        if (attendeesError) {
+          console.error('Error fetching attendees for session', session.id, attendeesError);
+          return {
+            ...session,
+            attendees: []
+          };
+        }
+        
+        return {
+          ...session,
+          attendees: attendees || []
+        };
+      }));
+      
       // Format the data to match the frontend expectations
-      const formattedSessions = data.map(session => ({
+      const formattedSessions = sessionsWithAttendees.map(session => ({
         id: session.id,
         day: session.day,
         date: session.date,
         time: session.time,
         maxAttendees: session.max_attendees,
-        attendees: [], // We don't actually return the attendees list for privacy reasons
+        attendees: session.attendees,
         attendeeCount: session.attendee_count || 0
       }));
       
