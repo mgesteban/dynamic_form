@@ -1,3 +1,5 @@
+// Add this near the top of your server.js file
+console.log('Server version: March 6, 2025 - New dates update');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
