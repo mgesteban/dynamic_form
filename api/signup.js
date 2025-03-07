@@ -4,8 +4,8 @@
 // Load environment variables
 require('dotenv').config();
 
-// Import Supabase client
-const { supabase } = require('../db/supabase');
+// Import Supabase client - using local version for serverless compatibility
+const { supabase } = require('./supabase-client');
 
 // Export the handler function for the API route
 module.exports = async (req, res) => {
