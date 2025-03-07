@@ -4,7 +4,7 @@ require('dotenv').config();
 
 // Get environment variables with fallbacks that won't cause initialization errors
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ozqlhaprezyrluocvnms.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96cWxoYXByZXp5cmx1b2N2bm1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzMDY5NzgsImV4cCI6MjA1Njg4Mjk3OH0.itoYfnZgxX4s4FM-uCmCHGkLrZ3AP-0imEwZiP4eGzw';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || 
 
 // Debug environment information (helpful for Vercel debugging)
 console.log('Supabase client init - environment details:');
