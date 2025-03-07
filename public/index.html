@@ -158,6 +158,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Debug mode - set to true to see detailed console logs
+            const DEBUG = true;
+            
+            function debugLog(...args) {
+                if (DEBUG) console.log(...args);
+            }
+            
             // Fetch sessions and render the form
             fetchSessions();
             
@@ -170,15 +177,27 @@
 
         // Fetch available sessions from the server
         function fetchSessions() {
+            console.log('Fetching sessions data...');
+            
             fetch('/api/sessions')
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Sessions data received:', data);
+                    if (!Array.isArray(data)) {
+                        throw new Error('Expected an array of sessions but got: ' + JSON.stringify(data).substring(0, 100));
+                    }
                     renderSessionOptions(data);
                     renderRegistrations(data);
                 })
                 .catch(error => {
-                    showError('Failed to load sessions. Please try again later.');
-                    console.error('Error:', error);
+                    showError('Failed to load sessions: ' + error.message);
+                    console.error('Error fetching sessions:', error);
                 });
         }
 
@@ -288,6 +307,8 @@
                 return;
             }
             
+            console.log('Submitting form data:', { name, email, sessionId });
+            
             // Submit to server
             fetch('/api/signup', {
                 method: 'POST',
@@ -301,6 +322,7 @@
                 }),
             })
             .then(response => {
+                console.log('Signup response status:', response.status);
                 if (!response.ok) {
                     return response.json().then(data => {
                         throw new Error(data.message || 'Something went wrong');
@@ -309,13 +331,14 @@
                 return response.json();
             })
             .then(data => {
+                console.log('Signup successful:', data);
                 showSuccess(data.message);
                 document.getElementById('signupForm').reset();
                 fetchSessions(); // Refresh the sessions data
             })
             .catch(error => {
                 showError(error.message);
-                console.error('Error:', error);
+                console.error('Error during signup:', error);
             });
         }
 
