@@ -22,12 +22,12 @@ module.exports = async (req, res) => {
   // Handle POST request - sign up for a session
   if (req.method === 'POST') {
     try {
-      const { name, email, sessionId } = req.body;
-      console.log('Signup request received:', { name, email, sessionId });
+      const { name, email, department, classification, sessionId } = req.body;
+      console.log('Signup request received:', { name, email, department, classification, sessionId });
       
       // Validate input
-      if (!name || !email || !sessionId) {
-        return res.status(400).json({ message: 'Please provide name, email, and session ID' });
+      if (!name || !email || !department || !classification || !sessionId) {
+        return res.status(400).json({ message: 'Please provide name, email, department, classification, and session ID' });
       }
       
       // Validate email format
@@ -87,7 +87,13 @@ module.exports = async (req, res) => {
       const { error: insertError } = await supabase
         .from('attendees')
         .insert([
-          { session_id: sessionIdInt, name, email }
+          { 
+            session_id: sessionIdInt, 
+            name, 
+            email, 
+            department, 
+            classification 
+          }
         ]);
       
       if (insertError) {
