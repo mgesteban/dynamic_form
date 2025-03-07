@@ -1,13 +1,13 @@
 // This file should be placed in the "api" directory at the root of your project
 // Vercel will automatically treat it as a serverless function at the route /api/sessions
 
+// Updated on March 6, 2025
 // Define our session data (this is our "database" for this simple app)
 const sessionsData = [
-  { id: 1, day: 'Monday', date: 'March 10', time: '10:00 AM - 11:30 AM', attendees: [], maxAttendees: 10 },
-  { id: 2, day: 'Wednesday', date: 'March 12', time: '2:00 PM - 3:30 PM', attendees: [], maxAttendees: 10 },
-  { id: 3, day: 'Friday', date: 'March 14', time: '9:00 AM - 10:30 AM', attendees: [], maxAttendees: 10 },
-  { id: 4, day: 'Tuesday', date: 'March 18', time: '1:00 PM - 2:30 PM', attendees: [], maxAttendees: 10 },
-  { id: 5, day: 'Thursday', date: 'March 20', time: '3:00 PM - 4:30 PM', attendees: [], maxAttendees: 10 },
+  { id: 1, day: 'Monday', date: 'March 10', time: '4:00 PM - 5:00 PM', attendees: [], maxAttendees: 10 },
+  { id: 2, day: 'Tuesday', date: 'March 11', time: '4:00 PM - 5:00 PM', attendees: [], maxAttendees: 10 },
+  { id: 3, day: 'Thursday', date: 'March 13', time: '2:00 PM - 3:00 PM', attendees: [], maxAttendees: 10 },
+  { id: 5, day: 'Thursday', date: 'March 13', time: '4:00 PM - 5:00 PM', attendees: [], maxAttendees: 10 },
 ];
 
 // Export the handler function for the API route
@@ -22,8 +22,12 @@ module.exports = (req, res) => {
     return res.status(200).end();
   }
 
+  // Log request for debugging
+  console.log('API request received:', req.method, req.url);
+  
   // Handle GET request - return sessions data
   if (req.method === 'GET') {
+    console.log('Returning updated session data');
     return res.status(200).json(sessionsData);
   }
 
