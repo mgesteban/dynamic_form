@@ -13,7 +13,7 @@ Before deploying, you need to set up your Supabase database:
 
 2. Verify that the tables were created successfully in the Supabase dashboard:
    - Log in to your Supabase account
-   - Open the project: https://ozqlhaprezyrluocvnms.supabase.co
+   - Open your project in the Supabase dashboard
    - Navigate to Table Editor to see the `sessions` and `attendees` tables
    - Check if sessions data was inserted correctly
 
@@ -28,7 +28,7 @@ Before deploying, you need to set up your Supabase database:
 
 2. Deploy with environment variables:
    ```bash
-   vercel deploy --prod --env SUPABASE_URL=https://ozqlhaprezyrluocvnms.supabase.co --env SUPABASE_KEY=your-supabase-anon-key
+   vercel deploy --prod --env SUPABASE_URL=https://your-project-id.supabase.co --env SUPABASE_KEY=your-supabase-anon-key
    ```
 
 ### Using Vercel Dashboard
@@ -39,7 +39,7 @@ Before deploying, you need to set up your Supabase database:
    - Go to https://vercel.com/new
    - Import your Git repository
    - Configure the following environment variables:
-     - `SUPABASE_URL`: https://ozqlhaprezyrluocvnms.supabase.co
+     - `SUPABASE_URL`: Your Supabase project URL (from your .env file)
      - `SUPABASE_KEY`: your-supabase-anon-key (use the value from your .env file)
    - Deploy the project
 

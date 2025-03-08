@@ -4,7 +4,7 @@
 
 The deployment error indicates that the database tables don't exist. You need to create them manually through the Supabase SQL Editor:
 
-1. Go to your Supabase project's SQL Editor
+1. Go to https://app.supabase.com/project/ozqlhaprezyrluocvnms/editor
 2. In the SQL Editor, paste and execute the following SQL to create the tables:
 
 ```sql
@@ -60,7 +60,7 @@ Make sure the Vercel deployment has the correct environment variables:
 1. Go to your Vercel project dashboard
 2. Navigate to Settings → Environment Variables
 3. Add the following variables:
-   - `SUPABASE_URL`: Your Supabase project URL (e.g., https://your-project-id.supabase.co)
+   - `SUPABASE_URL`: https://ozqlhaprezyrluocvnms.supabase.co
    - `SUPABASE_KEY`: (your Supabase anon key)
 4. Redeploy your project after adding the environment variables
 

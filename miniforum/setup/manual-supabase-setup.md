@@ -5,7 +5,7 @@ Yes, creating the tables manually using SQL in the Supabase dashboard is the bes
 ## 1. Log into Supabase
 
 1. Go to [Supabase](https://app.supabase.com) and log in
-2. Select your project from the list
+2. Select your project: `ozqlhaprezyrluocvnms`
 
 ## 2. Access the SQL Editor
 
@@ -87,7 +87,7 @@ Repeat the same steps for the `attendees` table.
 
 Make sure your Vercel deployment has these environment variables:
 
-- `SUPABASE_URL`: Your Supabase project URL (from your .env file)
+- `SUPABASE_URL`: https://ozqlhaprezyrluocvnms.supabase.co
 - `SUPABASE_KEY`: [your anon key from .env]
 
 ## 7. Test Your Deployment

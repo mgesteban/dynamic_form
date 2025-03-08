@@ -12,7 +12,7 @@ First, make sure you're properly logged in to Supabase:
 
 ## 2. Finding Your Project
 
-Find and select your project in the projects list. If you don't see it:
+Find and select your project "ozqlhaprezyrluocvnms" in the projects list. If you don't see it:
 - Make sure you're logged in with the correct account
 - Check if you've been invited to the project (check your email)
 - You might need to request access from the project owner
@@ -107,7 +107,7 @@ Your Vercel deployment needs the correct environment variables:
 1. Go to your Vercel project dashboard
 2. Navigate to Settings → Environment Variables
 3. Make sure you have these variables set:
-   - `SUPABASE_URL`: Your Supabase project URL (from your .env file)
+   - `SUPABASE_URL`: https://ozqlhaprezyrluocvnms.supabase.co
    - `SUPABASE_KEY`: (your anon key from .env)
 4. If you've made changes, redeploy your project
 
