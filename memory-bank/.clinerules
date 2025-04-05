@@ -1,0 +1,43 @@
+# MiniForum Project Rules and Patterns
+
+## Project Structure
+- The MiniForum project follows a standard Express.js structure with separate directories for API endpoints, database functions, and setup utilities.
+- Public static files are stored in the `/public` directory.
+- Database utilities are placed in `/db` directory.
+- API endpoints are organized in the `/api` directory.
+- Setup and initialization scripts are stored in the `/setup` directory.
+
+## Database Patterns
+- Supabase is used as the database service with PostgreSQL.
+- Database connection is established using environment variables stored in `.env`.
+- The sessions table stores information about available forum sessions.
+- The attendees table tracks registrations with a foreign key to sessions.
+- A unique constraint prevents duplicate registrations (same email for same session).
+- A database view (`sessions_with_counts`) is used to efficiently fetch sessions with their attendee counts.
+
+## API Patterns
+- API endpoints follow RESTful conventions.
+- The `/api/sessions` endpoint retrieves session data with attendee counts.
+- The `/api/signup` endpoint handles registration with validation.
+- Responses use consistent JSON formatting for both success and error cases.
+
+## Deployment
+- The application is deployed on Vercel's serverless platform.
+- Environment variables must be set in the Vercel deployment environment.
+- The application is designed to work with serverless functions.
+
+## Coding Conventions
+- Server-side validation is used for all inputs.
+- Error handling follows a consistent pattern with appropriate status codes.
+- All database operations are properly isolated with error handling.
+- Environment variables are validated at startup.
+
+## Critical Implementation Paths
+- Database initialization is handled through SQL scripts in the setup directory.
+- Session capacity is enforced both at the database and application levels.
+- Email uniqueness is enforced through a database constraint.
+
+## Security Considerations
+- Supabase credentials must be kept secure in environment variables.
+- Input validation is used to prevent injection attacks.
+- Row-level security policies control data access in Supabase.

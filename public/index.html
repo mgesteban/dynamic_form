@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chancellor Meetings</title>
+    <title>Forum Session Registration</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,396 +12,291 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
             background-color: white;
-            padding: 20px 30px;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
         h1 {
-            text-align: center;
-            margin-bottom: 20px;
             color: #333;
+            text-align: center;
+            margin-bottom: 30px;
         }
-        .form-group {
-            margin-bottom: 15px;
+
+        .sessions {
+            display: grid;
+            gap: 20px;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="email"],
-        select {
-            width: 100%;
-            padding: 10px;
+
+        .session {
             border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .session-option {
-            border: 1px solid #ddd;
-            border-radius: 4px;
             padding: 15px;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
-            cursor: pointer;
         }
-        .session-option:hover {
-            background-color: #f9f9f9;
+
+        .session-info {
+            flex-grow: 1;
         }
-        .session-option.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .session-details {
-            display: inline-block;
-            margin-left: 10px;
-            width: calc(100% - 30px);
-        }
+
         .session-day {
             font-weight: bold;
+            color: #2c5282;
         }
+
         .session-time {
-            color: #666;
-            font-size: 14px;
+            color: #4a5568;
         }
-        .attendee-count {
-            font-size: 13px;
-            margin-top: 5px;
+
+        .capacity {
+            font-size: 0.9em;
+            color: #718096;
         }
-        .available {
-            color: #2ecc71;
-        }
-        .full {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        button {
-            background-color: #3498db;
+
+        .register-btn {
+            background-color: #4299e1;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 10px;
+            transition: background-color 0.2s;
         }
-        button:hover {
-            background-color: #2980b9;
+
+        .register-btn:hover {
+            background-color: #3182ce;
         }
-        .alert {
-            padding: 10px 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+
+        .register-btn:disabled {
+            background-color: #cbd5e0;
+            cursor: not-allowed;
         }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .admin-section {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        .session-list {
-            margin-bottom: 25px;
-        }
-        .attendee-list {
-            margin-left: 20px;
-            font-size: 14px;
-        }
-        .hidden {
+
+        .registration-form {
             display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+
+        .submit-btn {
+            background-color: #48bb78;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #38a169;
+        }
+
+        .error {
+            color: #e53e3e;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .success {
+            color: #38a169;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .session-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .register-btn {
+                margin-top: 10px;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Chancellor Meetings</h1>
-        
-        <div id="successMessage" class="alert alert-success hidden"></div>
-        <div id="errorMessage" class="alert alert-danger hidden"></div>
-        
-        <form id="signupForm">
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="department">Department</label>
-                <input type="text" id="department" name="department" placeholder="Enter your department" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="classification">Classification</label>
-                <select id="classification" name="classification" required>
-                    <option value="" disabled selected>Select your classification</option>
-                    <option value="Classified Professional">Classified Professional</option>
-                    <option value="Faculty">Faculty</option>
-                    <option value="Administrator">Administrator</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Select a Session</label>
-                <div id="sessionOptions"></div>
-            </div>
-            
-            <button type="submit">Sign Up</button>
-        </form>
-        
-        <div class="admin-section">
-            <h2>Current Registrations</h2>
-            <div id="registrationsList"></div>
+        <h1>Forum Session Registration</h1>
+        <div id="sessions" class="sessions">
+            Loading sessions...
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Debug mode - set to true to see detailed console logs
-            const DEBUG = true;
-            
-            function debugLog(...args) {
-                if (DEBUG) console.log(...args);
-            }
-            
-            // Fetch sessions and render the form
-            fetchSessions();
-            
-            // Handle form submission
-            document.getElementById('signupForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitForm();
-            });
-        });
+        // Fetch and display sessions
+        async function loadSessions() {
+            try {
+                const response = await fetch('/api/sessions');
+                const data = await response.json();
+                
+                const sessionsContainer = document.getElementById('sessions');
+                sessionsContainer.innerHTML = '';
 
-        // Fetch available sessions from the server
-        function fetchSessions() {
-            console.log('Fetching sessions data...');
-            
-            // Use an absolute URL to ensure it works in all environments
-            const apiUrl = window.location.origin + '/api/sessions';
-            console.log('API URL:', apiUrl);
-            
-            fetch(apiUrl)
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Sessions data received:', data);
-                    if (!Array.isArray(data)) {
-                        throw new Error('Expected an array of sessions but got: ' + JSON.stringify(data).substring(0, 100));
-                    }
-                    renderSessionOptions(data);
-                    renderRegistrations(data);
-                })
-                .catch(error => {
-                    showError('Failed to load sessions: ' + error.message);
-                    console.error('Error fetching sessions:', error);
+                data.sessions.forEach(session => {
+                    const sessionElement = createSessionElement(session);
+                    sessionsContainer.appendChild(sessionElement);
                 });
-        }
-
-        // Render session options in the form
-        function renderSessionOptions(sessions) {
-            const sessionOptions = document.getElementById('sessionOptions');
-            sessionOptions.innerHTML = '';
-            
-            sessions.forEach(session => {
-                const isFull = session.attendeeCount >= session.maxAttendees;
-                const sessionElement = document.createElement('div');
-                sessionElement.className = isFull ? 'session-option disabled' : 'session-option';
-                
-                const radioInput = document.createElement('input');
-                radioInput.type = 'radio';
-                radioInput.name = 'sessionId';
-                radioInput.value = session.id;
-                radioInput.id = `session-${session.id}`;
-                radioInput.disabled = isFull;
-                radioInput.required = true;
-                
-                // Make the whole session option clickable
-                sessionElement.addEventListener('click', function() {
-                    if (!isFull) {
-                        radioInput.checked = true;
-                    }
-                });
-                
-                const sessionDetails = document.createElement('div');
-                sessionDetails.className = 'session-details';
-                
-                const dayElement = document.createElement('div');
-                dayElement.className = 'session-day';
-                dayElement.textContent = `${session.day}, ${session.date}`;
-                
-                const timeElement = document.createElement('div');
-                timeElement.className = 'session-time';
-                timeElement.textContent = session.time;
-                
-                const attendeeCount = document.createElement('div');
-                attendeeCount.className = `attendee-count ${isFull ? 'full' : 'available'}`;
-                attendeeCount.textContent = `${session.attendeeCount} / ${session.maxAttendees} attendees`;
-                
-                if (isFull) {
-                    const fullBadge = document.createElement('span');
-                    fullBadge.textContent = ' FULL';
-                    attendeeCount.appendChild(fullBadge);
-                }
-                
-                sessionDetails.appendChild(dayElement);
-                sessionDetails.appendChild(timeElement);
-                sessionDetails.appendChild(attendeeCount);
-                
-                sessionElement.appendChild(radioInput);
-                sessionElement.appendChild(sessionDetails);
-                sessionOptions.appendChild(sessionElement);
-            });
-        }
-
-        // Render current registrations in the admin section
-        function renderRegistrations(sessions) {
-            const registrationsList = document.getElementById('registrationsList');
-            registrationsList.innerHTML = '';
-            
-            sessions.forEach(session => {
-                const sessionElement = document.createElement('div');
-                sessionElement.className = 'session-list';
-                
-                const sessionTitle = document.createElement('h3');
-                sessionTitle.textContent = `${session.day}, ${session.date} - ${session.time}`;
-                
-                const attendeeCount = document.createElement('p');
-                attendeeCount.textContent = `${session.attendeeCount} / ${session.maxAttendees} attendees`;
-                
-                sessionElement.appendChild(sessionTitle);
-                sessionElement.appendChild(attendeeCount);
-                
-                if (session.attendees && session.attendees.length > 0) {
-                    const attendeeList = document.createElement('ul');
-                    attendeeList.className = 'attendee-list';
-                    
-                    session.attendees.forEach(attendee => {
-                        const attendeeItem = document.createElement('li');
-                        const deptInfo = attendee.department ? ` - ${attendee.department}` : '';
-                        const classInfo = attendee.classification ? ` (${attendee.classification})` : '';
-                        attendeeItem.textContent = `${attendee.name} (${attendee.email})${deptInfo}${classInfo}`;
-                        attendeeList.appendChild(attendeeItem);
-                    });
-                    
-                    sessionElement.appendChild(attendeeList);
-                } else {
-                    const noAttendees = document.createElement('p');
-                    noAttendees.textContent = 'No attendees yet';
-                    sessionElement.appendChild(noAttendees);
-                }
-                
-                registrationsList.appendChild(sessionElement);
-            });
-        }
-
-        // Submit the form to the server
-        function submitForm() {
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const department = document.getElementById('department').value;
-            const classification = document.getElementById('classification').value;
-            
-            // Get selected session
-            let sessionId = null;
-            const selectedSession = document.querySelector('input[name="sessionId"]:checked');
-            if (selectedSession) {
-                sessionId = selectedSession.value;
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                document.getElementById('sessions').innerHTML = 
+                    '<div class="error">Error loading sessions. Please try again later.</div>';
             }
+        }
+
+        // Create HTML element for a session
+        function createSessionElement(session) {
+            const div = document.createElement('div');
+            div.className = 'session';
+            const isFull = session.current_attendees >= session.max_attendees;
+
+            div.innerHTML = `
+                <div class="session-header">
+                    <div class="session-info">
+                        <div class="session-day">${session.day}, ${session.date}</div>
+                        <div class="session-time">${session.time}</div>
+                        <div class="capacity">
+                            ${session.current_attendees}/${session.max_attendees} registered
+                        </div>
+                    </div>
+                    <button 
+                        class="register-btn" 
+                        onclick="toggleRegistrationForm(${session.id})"
+                        ${isFull ? 'disabled' : ''}
+                    >
+                        ${isFull ? 'Session Full' : 'Register'}
+                    </button>
+                </div>
+                <div id="form-${session.id}" class="registration-form">
+                    <div class="form-group">
+                        <label for="name-${session.id}">Name:</label>
+                        <input type="text" id="name-${session.id}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-${session.id}">Email:</label>
+                        <input type="email" id="email-${session.id}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="classification-${session.id}">Classification:</label>
+                        <select id="classification-${session.id}" required class="form-select">
+                            <option value="">Select Classification</option>
+                            <option value="Faculty">Faculty</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="Classified">Classified</option>
+                        </select>
+                    </div>
+                    <button class="submit-btn" onclick="submitRegistration(${session.id})">
+                        Submit Registration
+                    </button>
+                    <div id="message-${session.id}"></div>
+                </div>
+            `;
+
+            return div;
+        }
+
+        // Toggle registration form visibility
+        function toggleRegistrationForm(sessionId) {
+            const form = document.getElementById(`form-${sessionId}`);
+            const allForms = document.querySelectorAll('.registration-form');
             
-            // Validate form
-            if (!name || !email || !department || !classification || !sessionId) {
-                showError('Please fill out all fields');
+            // Hide all other forms
+            allForms.forEach(f => {
+                if (f !== form) f.style.display = 'none';
+            });
+
+            // Toggle this form
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Submit registration
+        async function submitRegistration(sessionId) {
+            const nameInput = document.getElementById(`name-${sessionId}`);
+            const emailInput = document.getElementById(`email-${sessionId}`);
+            const classificationInput = document.getElementById(`classification-${sessionId}`);
+            const messageDiv = document.getElementById(`message-${sessionId}`);
+
+            // Basic validation
+            if (!nameInput.value.trim() || !emailInput.value.trim() || !classificationInput.value) {
+                messageDiv.className = 'error';
+                messageDiv.textContent = 'Please fill in all fields.';
                 return;
             }
-            
-            console.log('Submitting form data:', { name, email, department, classification, sessionId });
-            
-            // Use an absolute URL to ensure it works in all environments
-            const apiUrl = window.location.origin + '/api/signup';
-            
-            // Submit to server
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name,
-                    email,
-                    department,
-                    classification,
-                    sessionId
-                }),
-            })
-            .then(response => {
-                console.log('Signup response status:', response.status);
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.message || 'Something went wrong');
-                    });
+
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sessionId,
+                        name: nameInput.value.trim(),
+                        email: emailInput.value.trim(),
+                        classification: classificationInput.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageDiv.className = 'success';
+                    messageDiv.textContent = data.message;
+                    nameInput.value = '';
+                    emailInput.value = '';
+                    classificationInput.value = '';
+                    // Reload sessions to update counts
+                    setTimeout(loadSessions, 1000);
+                } else {
+                    messageDiv.className = 'error';
+                    messageDiv.textContent = data.details || data.error;
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Signup successful:', data);
-                showSuccess(data.message);
-                document.getElementById('signupForm').reset();
-                fetchSessions(); // Refresh the sessions data
-            })
-            .catch(error => {
-                showError(error.message);
-                console.error('Error during signup:', error);
-            });
+            } catch (error) {
+                console.error('Registration error:', error);
+                messageDiv.className = 'error';
+                messageDiv.textContent = 'Registration failed. Please try again later.';
+            }
         }
 
-        // Show success message
-        function showSuccess(message) {
-            const successMessage = document.getElementById('successMessage');
-            successMessage.textContent = message;
-            successMessage.classList.remove('hidden');
-            
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.classList.add('hidden');
-            
-            // Hide success message after 5 seconds
-            setTimeout(() => {
-                successMessage.classList.add('hidden');
-            }, 5000);
-        }
-
-        // Show error message
-        function showError(message) {
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.textContent = message;
-            errorMessage.classList.remove('hidden');
-            
-            const successMessage = document.getElementById('successMessage');
-            successMessage.classList.add('hidden');
-        }
+        // Load sessions when page loads
+        document.addEventListener('DOMContentLoaded', loadSessions);
     </script>
 </body>
 </html>
